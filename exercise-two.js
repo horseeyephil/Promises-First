@@ -36,21 +36,27 @@ function problemA () {
    */
 
   // callback version
-  async.each(['poem-two/stanza-01.txt', 'poem-two/stanza-02.txt'],
-    function (filename, eachDone) {
-      readFile(filename, function (err, stanza) {
-        console.log('-- A. callback version --');
-        blue(stanza);
-        eachDone();
-      });
-    },
-    function (err) {
-      console.log('-- A. callback version done --');
-    }
-  );
+  // async.each(['poem-two/stanza-01.txt', 'poem-two/stanza-02.txt'],
+  //   function (filename, eachDone) {
+  //     readFile(filename, function (err, stanza) {
+  //       console.log('-- A. callback version --');
+  //       blue(stanza);
+  //       eachDone();
+  //     });
+  //   },
+  //   function (err) {
+  //     console.log('-- A. callback version done --');
+  //   }
+  // );
 
-  // promise version
-  // ???
+  Promise.all([promisifiedReadFile('poem-two/stanza-01.txt'), promisifiedReadFile('poem-two/stanza-02.txt')])
+  .then(function(arr){
+    arr.forEach(function(idx){magenta(idx);});
+    magenta('done');
+  });
+
+
+  
 
 }
 
@@ -68,7 +74,8 @@ function problemB () {
     return 'poem-two/' + 'stanza-0' + n + '.txt';
   });
 
-  // callback version
+  //callback version
+  
   async.each(filenames,
     function (filename, eachDone) {
       readFile(filename, function (err, stanza) {
@@ -82,9 +89,15 @@ function problemB () {
     }
   );
 
-  // promise version
-  // ???
+  const promisifiedArray = filenames.map(function(idx){
+    return promisifiedReadFile(idx);
+  });
 
+  Promise.all(promisifiedArray)
+  .then(function(arr){
+    arr.forEach((idx)=>{magenta(idx);});
+    magenta('done');
+  });
 }
 
 function problemC () {
@@ -117,8 +130,17 @@ function problemC () {
 
   // promise version
   // ???
+  const promisifiedArray = filenames.map(function(idx){
+    return promisifiedReadFile(idx);
+  });
 
+  Promise.all(promisifiedArray)
+  .then(function(arr){
+    arr.forEach((idx)=>{magenta(idx);});
+    magenta('done');
+  });
 }
+
 
 function problemD () {
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -137,25 +159,37 @@ function problemD () {
   filenames[randIdx] = 'wrong-file-name-' + (randIdx + 1) + '.txt';
 
   // callback version
-  async.eachSeries(filenames,
-    function (filename, eachDone) {
-      readFile(filename, function (err, stanza) {
-        console.log('-- D. callback version --');
-        if (err) return eachDone(err);
-        blue(stanza);
-        eachDone();
-      });
-    },
-    function (err) {
-      if (err) magenta(err);
-      console.log('-- D. callback version done --');
-    }
-  );
+
+  // async.eachSeries(filenames,
+  //   function (filename, eachDone) {
+  //     readFile(filename, function (err, stanza) {
+  //       console.log('-- D. callback version --');
+  //       if (err) return eachDone(err);
+  //       blue(stanza);
+  //       eachDone();
+  //     });
+  //   },
+  //   function (err) {
+  //     if (err) magenta(err);
+  //     console.log('-- D. callback version done --');
+  //   }
+  // );
 
   // promise version
   // ???
+  const promisifiedArray = filenames.map(function(idx){
+    return promisifiedReadFile(idx);
+  });
 
+  Promise.all(promisifiedArray)
+  .then(function(arr){
+    arr.forEach((idx)=>{magenta(idx);});
+    magenta('done');
+  }).catch(function(err){
+    console.error(err);
+  });
 }
+
 
 function problemE () {
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -166,6 +200,28 @@ function problemE () {
 
   var fs = require('fs');
   function promisifiedWriteFile (filename, str) {
-    // your code here
+    return new Promise(function(resolve,reject){
+      fs.readFile(filename, str, (err) => {
+        if(err) throw err;
+        console.log('Successful write!');
+      })
+    })
   }
 }
+
+
+
+var fs = require('fs');
+function promisifiedWriteFile (filename, str) {
+  return new Promise(function(resolve,reject){
+    fs.readFile(filename, str, (err) => {
+      if(err) throw err;
+      console.log('Successful write!');
+    })
+  })
+}
+
+promisifiedWriteFile('/Users/philipgingerich/FullStack/practical-promises/poem-one/stanza-05.txt','Hello!\nThis is our poem!')
+.then(function(){
+  magenta('We made a file!')
+});

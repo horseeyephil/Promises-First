@@ -20,7 +20,9 @@ utils.promisifiedReadFile = function (filename) {
 	return new Promise(function (resolve, reject) {
 		utils.readFile(filename, function (err, str) {
 			if (err) reject(err);
-			else resolve(str);
+			else {
+				resolve(str);
+			}
 		});
 	});
 };
